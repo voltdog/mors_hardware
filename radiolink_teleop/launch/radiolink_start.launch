@@ -1,0 +1,10 @@
+<launch>
+    <rosparam command="load" file="$(find radiolink_teleop)/config/radiolink_config.yaml" ns="radiolink_teleop"/>
+    
+    <!-- <node name="radiolink_teleop" pkg="radiolink_teleop" type="t8s_hid.py" output="screen"/> -->
+    <node name="radiolink_teleop" pkg="radiolink_teleop" type="t8s_ros.py" output="screen"/>
+    
+    <node name="joy" pkg="joy" type="joy_node">
+                <param name="dev" value="/dev/input/js0" />
+    </node>
+</launch>
