@@ -4,6 +4,7 @@ import time
 import os
 from power_bridge.msg import HMIBeeper, HMILed, PowerButtons
 from std_msgs.msg import Bool
+from mors.srv import JointsCmd
 
 class StatusTracker():
     def __init__(self) -> None:
@@ -24,8 +25,11 @@ class StatusTracker():
         self.emerg_btn = False
         self.pre_emerg_btn = False
         self.user_btn = False
+        self.pre_user_btn = False
         self.emerg_on = False
         self.emerg_off = False
+
+        self.user_btn_on = False
 
     def run(self):
         rospy.sleep(0.5)
@@ -47,10 +51,55 @@ class StatusTracker():
                 print("idle")
                 self.set_beep(0, 8)
 
+            if self.user_btn == True and self.pre_user_btn == False:
+                self.user_btn_on = not self.user_btn_on
+                if self.user_btn_on == True:
+                    rospy.loginfo("User Button On")
+                    self.set_joint_kp([0.0]*12)
+                    self.set_joint_kd([0.7]*12)
+                    self.disable_msg.data = True
+                    self.set_led(1, 10, 0, 0, 2000, 8)
+                    self.set_beep(0.5, 4)
+                else:
+                    rospy.loginfo("User Button Off")
+                    self.set_joint_kp([0.0]*12)
+                    self.set_joint_kd([0.0]*12)
+                    self.disable_msg.data = False
+                    self.set_led(1, 10, 0, 0, 0, 0)
+
 
             self.disable_pub.publish(self.disable_msg)
             self.pre_emerg_btn = self.emerg_btn
+            self.pre_user_btn = self.user_btn
             self.rate.sleep()
+
+    def set_mode(self, mode):
+        rospy.wait_for_service('joints_kp')
+        try:
+            set_kp_srv = rospy.ServiceProxy('joints_kp', JointsCmd)
+            resp = set_kp_srv(kp)
+            return resp.result
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
+    def set_joint_kp(self, kp):
+        rospy.wait_for_service('joints_kp')
+        try:
+            set_kp_srv = rospy.ServiceProxy('joints_kp', JointsCmd)
+            resp = set_kp_srv(kp)
+            return resp.result
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
+    def set_joint_kd(self, kd):
+        rospy.wait_for_service('joints_kd')
+        try:
+            set_kd_srv = rospy.ServiceProxy('joints_kd', JointsCmd)
+            resp = set_kd_srv(kd)
+            return resp.result
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
 
     def check_emerg(self):
         if self.emerg_btn == True and self.pre_emerg_btn == False:
@@ -86,7 +135,7 @@ class StatusTracker():
         else:
             self.emerg_btn = False
         if data.user == True:
-            rospy.loginfo("User Button")
+            # rospy.loginfo("User Button")
             self.user_btn = True
         else:
             self.user_btn = False
