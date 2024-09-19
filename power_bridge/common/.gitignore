@@ -1,0 +1,5 @@
+# Ignore all non-linked
+*
+!libcanard
+!o1heap
+!.gitignore

@@ -1,0 +1,7 @@
+<launch>
+
+  <node pkg="power_bridge" type="power_bridge_node"
+        name="power_bridge" output="screen">
+  </node>
+
+</launch>
