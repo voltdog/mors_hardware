@@ -2,7 +2,7 @@ toplevel_dir=`git rev-parse --show-toplevel`
 
 echo "Root is - ${toplevel_dir}"
 
-export PROJECT_ROOT=${toplevel_dir}
+export PROJECT_ROOT=${toplevel_dir}/power_bridge
 
 # Dirs variabless
 export DSDL_OUTPUT=${PROJECT_ROOT}/common

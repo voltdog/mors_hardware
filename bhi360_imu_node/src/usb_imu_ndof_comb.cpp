@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 1000);
+  ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu/data", 1000);
 
   ros::Rate loop_rate(100);
   

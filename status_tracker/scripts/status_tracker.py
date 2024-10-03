@@ -33,21 +33,21 @@ class StatusTracker():
 
     def run(self):
         rospy.sleep(0.5)
-        self.set_led(1, 10, 0, 0, 1, 0)
+        self.set_led(0, 0, 10, 0, 1, 0)
         rospy.loginfo("status_tracker started")
         while not rospy.is_shutdown():
             self.check_emerg()
             
             if self.emerg_on == True:
                 self.disable_msg.data = True
-                self.set_led(1, 10, 0, 0, 2000, 8)
+                self.set_led(0, 10, 0, 0, 2000, 8)
                 self.set_beep(2, 8)
 
             if self.emerg_off == True:
                 os.system("cd ~")
                 os.system("./start_offsets.sh")
                 self.disable_msg.data = False
-                self.set_led(1, 10, 0, 0, 0, 0)
+                self.set_led(0, 0, 10, 0, 0, 0)
                 print("idle")
                 self.set_beep(0, 8)
 
@@ -58,14 +58,14 @@ class StatusTracker():
                     self.set_joint_kp([0.0]*12)
                     self.set_joint_kd([0.7]*12)
                     self.disable_msg.data = True
-                    self.set_led(1, 10, 0, 0, 2000, 8)
+                    self.set_led(0, 0, 10, 0, 2000, 8)
                     self.set_beep(0.5, 4)
                 else:
                     rospy.loginfo("User Button Off")
                     self.set_joint_kp([0.0]*12)
                     self.set_joint_kd([0.0]*12)
                     self.disable_msg.data = False
-                    self.set_led(1, 10, 0, 0, 0, 0)
+                    self.set_led(0, 0, 10, 0, 0, 0)
 
 
             self.disable_pub.publish(self.disable_msg)
@@ -76,8 +76,8 @@ class StatusTracker():
     def set_mode(self, mode):
         rospy.wait_for_service('joints_kp')
         try:
-            set_kp_srv = rospy.ServiceProxy('joints_kp', JointsCmd)
-            resp = set_kp_srv(kp)
+            set_mode_srv = rospy.ServiceProxy('joints_kp', JointsCmd)
+            resp = set_mode_srv(mode)
             return resp.result
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
